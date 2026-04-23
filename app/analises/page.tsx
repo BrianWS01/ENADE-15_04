@@ -1,5 +1,3 @@
-"use client";
-
 import { BarChart3, TrendingUp, Users, PieChart, Activity } from "lucide-react";
 import { HistoricalChart } from "@/components/historical-chart";
 import { getHistoricalChartData } from "@/services/dashboard.service";
