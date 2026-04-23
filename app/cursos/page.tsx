@@ -1,11 +1,16 @@
 import { getCourses } from "@/services/course.service";
 import { CourseFilters } from "@/components/courses/CourseFilters";
 import { CourseList } from "@/components/courses/CourseList";
+import Link from "next/link";
+
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export default async function CoursesPage(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
+  const session = await getServerSession(authOptions);
   
   const page = typeof searchParams.page === "string" ? parseInt(searchParams.page, 10) : 1;
   const search = typeof searchParams.search === "string" ? searchParams.search : undefined;
@@ -14,10 +19,12 @@ export default async function CoursesPage(props: { searchParams: SearchParams })
 
   const response = await getCourses({
     page,
-    perPage: 9,
+    perPage: 6,
     search,
     category,
     riskLevel,
+    userId: session?.user?.id,
+    userRole: session?.user?.role,
   });
 
   return (
@@ -31,6 +38,12 @@ export default async function CoursesPage(props: { searchParams: SearchParams })
             Gerencie e analise todos os cursos cadastrados na base.
           </p>
         </div>
+        <Link 
+          href="/cursos/novo"
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-sm"
+        >
+          Novo Curso
+        </Link>
       </div>
 
       {/* Filtros interativos */}

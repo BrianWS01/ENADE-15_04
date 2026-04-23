@@ -1,21 +1,20 @@
-import type { DashboardData, ChartDataPoint, RadarDataPoint } from '@/types';
+import type { DashboardData, ChartDataPoint, RadarDataPoint, BaseQueryParams } from '@/types';
 
 // =============================================================================
 // DASHBOARD SERVICE — Fachada pública
-//
-// Os componentes e rotas de API importam DAQUI, nunca dos adapters diretamente.
-// Para alternar entre mock e Prisma, mude USE_MOCK abaixo ou via .env.
 // =============================================================================
+// A regra de negócio principal vive aqui. Componentes chamam este arquivo.
+// Este arquivo decide internamente qual Adapter instanciar.
 
 const USE_MOCK = process.env.USE_MOCK === 'true';
 
-export async function getDashboardData(): Promise<DashboardData> {
+export async function getDashboardData(params?: BaseQueryParams): Promise<DashboardData> {
   if (USE_MOCK) {
     const { getMockDashboard } = await import('@/adapters/mock/dashboard.mock');
     return getMockDashboard();
   }
   const { getPrismaDashboard } = await import('@/adapters/prisma/dashboard.prisma');
-  return getPrismaDashboard();
+  return getPrismaDashboard(params);
 }
 
 export async function getHistoricalChartData(): Promise<ChartDataPoint[]> {

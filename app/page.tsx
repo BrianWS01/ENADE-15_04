@@ -20,12 +20,19 @@ import {
   getDashboardData,
   getHistoricalChartData,
 } from "@/services/dashboard.service";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // Server Component — sem useState, sem useEffect, sem fetch no cliente.
 // Dados fluem do service → page → componentes tipados.
 export default async function Dashboard() {
+  const session = await getServerSession(authOptions);
+
   const [data, chartData] = await Promise.all([
-    getDashboardData(),
+    getDashboardData({
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+    }),
     getHistoricalChartData(),
   ]);
 

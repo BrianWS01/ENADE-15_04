@@ -25,6 +25,21 @@ export interface Course {
   updatedAt: string;
 }
 
+export interface CreateCourseInput {
+  name: string;
+  category: CourseCategory;
+  modality: CourseModality;
+  enadeScore?: number;
+  nationalAvg?: number;
+  participationRate?: number;
+  idd?: number;
+  riskLevel?: RiskLevel;
+}
+
+export interface UpdateCourseInput extends Partial<CreateCourseInput> {
+  id: string;
+}
+
 // Versão resumida para listagens
 export interface CourseSummary {
   id: string;
@@ -48,9 +63,14 @@ export interface PaginatedResponse<T> {
   };
 }
 
-export interface CourseQueryParams {
+export interface BaseQueryParams {
   page?: number;
   perPage?: number;
+  userId?: string;
+  userRole?: string;
+}
+
+export interface CourseQueryParams extends BaseQueryParams {
   search?: string;
   category?: string;
   riskLevel?: string;
@@ -112,30 +132,59 @@ export interface RadarDataPoint {
 // ---------------------------------------------------------------------------
 // SIMULADOS
 // ---------------------------------------------------------------------------
-export type SimulationStatus = 'Agendado' | 'Em andamento' | 'Finalizado';
+export type SimuladoStatus = 'Agendado' | 'Em andamento' | 'Finalizado';
 
-export interface Simulation {
+export interface Simulado {
   id: string;
   name: string;
+  date: string;       // ISO string
+  avg: number;        // Média de nota 0-10 ou 0-5
+  participation: number; // Porcentagem 0-100
+  status: SimuladoStatus;
+  courseId: string;   // Relacionamento com o curso
+  courseName: string; // Desnormalizado/Join para a listagem
+  createdAt: string;
+}
+
+export interface CreateSimuladoInput {
+  name: string;
+  courseId: string;
   date: string;
-  avg: number;
-  participation: string; // ex: "85%"
-  status: SimulationStatus;
+  status?: SimuladoStatus;
+}
+
+export interface UpdateSimuladoInput extends Partial<CreateSimuladoInput> {
+  id: string;
+}
+
+export interface SimuladoQueryParams extends BaseQueryParams {
+  search?: string;
+  status?: string;
   courseId?: string;
 }
 
 // ---------------------------------------------------------------------------
 // DIAGNÓSTICO
 // ---------------------------------------------------------------------------
-export interface DiagnosisResult {
-  course: string;
-  notaGeral: string;
-  variation: string;
+export interface Diagnostico {
+  id: string;
+  courseId: string;
+  courseName: string;
+  simuladoId?: string;
+  simuladoName?: string;
+  scoreGeral: number;
+  riskLevel: RiskLevel;
   trend: 'Crescente' | 'Estável' | 'Em queda';
-  nationalAvgDiff: string;    // ex: "+0.23"
   strengths: string[];
   weaknesses: string[];
   recommendations: string[];
+  createdAt: string;
+}
+
+export interface DiagnosticoQueryParams extends BaseQueryParams {
+  courseId?: string;
+  riskLevel?: string;
+  dateStr?: string; // Optional filtering by recent date
 }
 
 // ---------------------------------------------------------------------------

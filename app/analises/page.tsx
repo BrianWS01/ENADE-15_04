@@ -2,8 +2,11 @@
 
 import { BarChart3, TrendingUp, Users, PieChart, Activity } from "lucide-react";
 import { HistoricalChart } from "@/components/historical-chart";
+import { getHistoricalChartData } from "@/services/dashboard.service";
 
-export default function AnalysisPage() {
+export default async function AnalysisPage() {
+  const chartData = await getHistoricalChartData();
+
   return (
     <div className="space-y-8">
       <div>
@@ -37,7 +40,7 @@ export default function AnalysisPage() {
 
       <div className="bg-white dark:bg-zinc-900 border border-border dark:border-zinc-800 rounded-xl p-8 h-[400px] shadow-sm">
         <h3 className="font-semibold text-lg mb-6 text-zinc-900 dark:text-zinc-100">Comparativo Regional vs Nacional</h3>
-        <HistoricalChart />
+        <HistoricalChart data={chartData} />
       </div>
 
       <div className="bg-zinc-900 rounded-xl p-8 text-white flex items-center justify-between">

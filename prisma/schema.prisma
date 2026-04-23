@@ -20,8 +20,12 @@ model Course {
   participationRate Float        @default(0)
   idd               Float        @default(0)
   riskLevel         String       @default("Médio") // Baixo, Médio, Alto
+  userId            String?      // Optional for backward compatibility with mock/dev
+  user              User?        @relation(fields: [userId], references: [id])
   students          Student[]
   assessments       Assessment[]
+  simulados         Simulado[]
+  diagnosticos      Diagnostico[]
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 }
@@ -49,4 +53,51 @@ model Assessment {
   riskLevel    String
   participation Float    @default(0)
   createdAt    DateTime @default(now())
+}
+
+model Simulado {
+  id            String   @id @default(cuid())
+  name          String
+  date          DateTime
+  avg           Float    @default(0)
+  participation Float    @default(0)
+  status        String   @default("Agendado") // Agendado, Em andamento, Finalizado
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
+  courseId      String
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  diagnosticos  Diagnostico[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Diagnostico {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  simuladoId      String?
+  simulado        Simulado? @relation(fields: [simuladoId], references: [id], onDelete: SetNull)
+  scoreGeral      Float
+  riskLevel       String   // Baixo, Médio, Alto
+  trend           String   // Crescente, Estável, Em queda
+  strengths       String   // JSON string array
+  weaknesses      String   // JSON string array
+  recommendations String   // JSON string array
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String
+  email         String        @unique
+  password      String
+  role          String        @default("USER") // ADMIN, PROFESSOR, USER
+  cursos        Course[]
+  simulados     Simulado[]
+  diagnosticos  Diagnostico[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }

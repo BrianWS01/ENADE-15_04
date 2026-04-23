@@ -1,11 +1,20 @@
 import { prisma } from '@/lib/prisma';
-import type { DashboardData, AlertItem, AlertLevel, AlertType } from '@/types';
+import type { DashboardData, AlertItem, AlertLevel, AlertType, BaseQueryParams } from '@/types';
 
 // Implementação real usando Prisma.
 // Mesmo contrato de DashboardData que o mock — componentes não sabem a diferença.
 
-export async function getPrismaDashboard(): Promise<DashboardData> {
+export async function getPrismaDashboard(params?: BaseQueryParams): Promise<DashboardData> {
+  const whereUserId = (params?.userRole === 'PROFESSOR' && params.userId) 
+    ? { userId: params.userId } 
+    : {};
+
+  // Em produção, isso alimentaria o dashboard baseado nos cursos do usuário
+  const totalCoursesCount = await prisma.course.count({ where: whereUserId });
+  const simuladosCount = await prisma.simulado.count({ where: whereUserId });
+
   const courses = await prisma.course.findMany({
+    where: whereUserId,
     orderBy: { enadeScore: 'desc' },
   });
 

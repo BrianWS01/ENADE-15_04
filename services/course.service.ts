@@ -21,3 +21,27 @@ export async function getCourseById(id: string): Promise<Course | null> {
   const { getPrismaCourseById } = await import('@/adapters/prisma/course.prisma');
   return getPrismaCourseById(id);
 }
+
+export async function createCourse(data: import('@/types').CreateCourseInput, userId: string): Promise<Course> {
+  if (USE_MOCK) {
+    throw new Error("Mutations not implemented in mock adapter yet.");
+  }
+  const { createPrismaCourse } = await import('@/adapters/prisma/course.prisma');
+  return createPrismaCourse(data, userId);
+}
+
+export async function updateCourse(data: import('@/types').UpdateCourseInput, userId: string, role: string): Promise<Course> {
+  if (USE_MOCK) {
+    throw new Error("Mutations not implemented in mock adapter yet.");
+  }
+  const { updatePrismaCourse } = await import('@/adapters/prisma/course.prisma');
+  return updatePrismaCourse(data, userId, role);
+}
+
+export async function deleteCourse(id: string, userId: string, role: string): Promise<boolean> {
+  if (USE_MOCK) {
+    throw new Error("Mutations not implemented in mock adapter yet.");
+  }
+  const { deletePrismaCourse } = await import('@/adapters/prisma/course.prisma');
+  return deletePrismaCourse(id, userId, role);
+}
