@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import type { Diagnostico, DiagnosticoQueryParams, PaginatedResponse, RiskLevel } from '@/types';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export async function getPrismaDiagnosticos(params: DiagnosticoQueryParams): Promise<PaginatedResponse<Diagnostico>> {
   const page = params.page || 1;

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import type { Simulado, SimuladoQueryParams, PaginatedResponse, SimuladoStatus } from '@/types';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export async function getPrismaSimulados(params: SimuladoQueryParams): Promise<PaginatedResponse<Simulado>> {
   const page = params.page || 1;

@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import type { Course, CourseQueryParams, PaginatedResponse, CourseCategory, CourseModality, RiskLevel } from '@/types';
-import { Prisma } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export async function getPrismaCourses(params: CourseQueryParams): Promise<PaginatedResponse<Course>> {
   const page = params.page || 1;
