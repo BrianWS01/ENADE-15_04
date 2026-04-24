@@ -1,4 +1,4 @@
-# ENADE SaaS - Painel de Desempenho Acadêmico
+# ENADE SaaS - Painel de Desempenho Acadêmico 🚀
 
 Uma plataforma analítica avançada desenvolvida para acompanhar o desempenho institucional no ENADE, simulados e diagnósticos, voltada para Administradores e Professores.
 
