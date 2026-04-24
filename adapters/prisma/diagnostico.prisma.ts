@@ -1,12 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import type { Diagnostico, DiagnosticoQueryParams, PaginatedResponse, RiskLevel } from '@/types';
-import type { Prisma } from '@prisma/client';
 
 export async function getPrismaDiagnosticos(params: DiagnosticoQueryParams): Promise<PaginatedResponse<Diagnostico>> {
   const page = params.page || 1;
   const perPage = params.perPage || 10;
   
-  const where: Prisma.DiagnosticoWhereInput = {};
+  const where: Record<string, any> = {};
 
   if (params.courseId && params.courseId !== 'all') {
     where.courseId = params.courseId;

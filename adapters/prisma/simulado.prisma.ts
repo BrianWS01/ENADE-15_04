@@ -1,12 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import type { Simulado, SimuladoQueryParams, PaginatedResponse, SimuladoStatus } from '@/types';
-import type { Prisma } from '@prisma/client';
 
 export async function getPrismaSimulados(params: SimuladoQueryParams): Promise<PaginatedResponse<Simulado>> {
   const page = params.page || 1;
   const perPage = params.perPage || 10;
   
-  const where: Prisma.SimuladoWhereInput = {};
+  const where: Record<string, any> = {};
 
   if (params.search) {
     where.OR = [
@@ -119,7 +118,7 @@ export async function createPrismaSimulado(data: import('@/types').CreateSimulad
 export async function updatePrismaSimulado(data: import('@/types').UpdateSimuladoInput, userId: string, role: string): Promise<Simulado> {
   const { id, ...updateData } = data;
   
-  const whereClausule: Prisma.SimuladoWhereUniqueInput = { id };
+  const whereClausule: Record<string, any> = { id };
   if (role === 'PROFESSOR') {
     whereClausule.userId = userId;
   }
@@ -147,7 +146,7 @@ export async function updatePrismaSimulado(data: import('@/types').UpdateSimulad
 }
 
 export async function deletePrismaSimulado(id: string, userId: string, role: string): Promise<boolean> {
-  const whereClausule: Prisma.SimuladoWhereUniqueInput = { id };
+  const whereClausule: Record<string, any> = { id };
   if (role === 'PROFESSOR') {
     whereClausule.userId = userId;
   }

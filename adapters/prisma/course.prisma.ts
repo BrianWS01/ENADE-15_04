@@ -1,12 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import type { Course, CourseQueryParams, PaginatedResponse, CourseCategory, CourseModality, RiskLevel } from '@/types';
-import type { Prisma } from '@prisma/client';
 
 export async function getPrismaCourses(params: CourseQueryParams): Promise<PaginatedResponse<Course>> {
   const page = params.page || 1;
   const perPage = params.perPage || 10;
   
-  const where: Prisma.CourseWhereInput = {};
+  const where: Record<string, any> = {};
 
   if (params.search) {
     where.name = {
@@ -106,7 +105,7 @@ export async function createPrismaCourse(data: import('@/types').CreateCourseInp
 export async function updatePrismaCourse(data: import('@/types').UpdateCourseInput, userId: string, role: string): Promise<Course> {
   const { id, ...updateData } = data;
   
-  const whereClausule: Prisma.CourseWhereUniqueInput = { id };
+  const whereClausule: Record<string, any> = { id };
   if (role === 'PROFESSOR') {
     whereClausule.userId = userId;
   }
@@ -127,7 +126,7 @@ export async function updatePrismaCourse(data: import('@/types').UpdateCourseInp
 }
 
 export async function deletePrismaCourse(id: string, userId: string, role: string): Promise<boolean> {
-  const whereClausule: Prisma.CourseWhereUniqueInput = { id };
+  const whereClausule: Record<string, any> = { id };
   if (role === 'PROFESSOR') {
     whereClausule.userId = userId;
   }
