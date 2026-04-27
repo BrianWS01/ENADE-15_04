@@ -22,11 +22,14 @@ export async function generateCourseReportAction(courseId: string): Promise<{
       return { success: false, error: "Não autorizado" };
     }
 
+    console.log(`[ReportAction] Iniciando geração para curso: ${courseId}`);
     const course = await getCourseById(courseId);
     if (!course) {
+      console.error(`[ReportAction] Curso não encontrado: ${courseId}`);
       return { success: false, error: "Curso não encontrado" };
     }
 
+    console.log(`[ReportAction] Buscando analytics para: ${course.name}`);
     const analytics = await getCourseAnalytics(courseId, session as any);
 
     // Criação do documento PDF
@@ -145,8 +148,11 @@ export async function generateCourseReportAction(courseId: string): Promise<{
 
       doc.end();
     });
-  } catch (error) {
-    console.error("Erro ao gerar relatório:", error);
-    return { success: false, error: "Falha ao gerar o relatório PDF" };
+  } catch (error: any) {
+    console.error("ERRO CRÍTICO NA GERAÇÃO DO RELATÓRIO:", error);
+    return { 
+      success: false, 
+      error: `Erro técnico: ${error.message || "Falha desconhecida no servidor"}` 
+    };
   }
 }
