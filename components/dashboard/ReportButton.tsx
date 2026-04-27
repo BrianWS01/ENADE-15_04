@@ -14,15 +14,18 @@ export function ReportButton({ courseId }: Props) {
   const handleDownload = async () => {
     try {
       setLoading(true);
-      const base64 = await generateCourseReportAction(courseId);
+      const result = await generateCourseReportAction(courseId);
       
-      // Criar link temporário para download
-      const link = document.createElement('a');
-      link.href = base64;
-      link.download = `relatorio-enade-${courseId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (result.success && result.data) {
+        const link = document.createElement('a');
+        link.href = `data:application/pdf;base64,${result.data}`;
+        link.download = result.filename || `relatorio-enade-${courseId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        alert(result.error || "Erro ao gerar o relatório.");
+      }
     } catch (error) {
       console.error('Erro ao gerar relatório:', error);
       alert('Não foi possível gerar o relatório. Tente novamente.');

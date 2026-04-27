@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FileDown, Loader2 } from "lucide-react";
-import { generateCourseReport } from "@/app/actions/report.actions";
+import { generateCourseReportAction } from "@/app/actions/report.actions";
 
 interface DownloadReportButtonProps {
   courseId: string;
@@ -20,7 +20,7 @@ export function DownloadReportButton({ courseId }: DownloadReportButtonProps) {
       setLoading(true);
       
       // Chamada da Server Action
-      const result = await generateCourseReport(courseId);
+      const result = await generateCourseReportAction(courseId);
 
       if (result.success && result.data) {
         // Conversão de Base64 para Blob no lado do cliente

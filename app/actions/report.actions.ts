@@ -10,7 +10,7 @@ import { getCourseById } from "@/services/course.service";
  * Server Action para gerar o relatório PDF de um curso.
  * Retorna os dados em Base64 para download no cliente.
  */
-export async function generateCourseReport(courseId: string) {
+export async function generateCourseReportAction(courseId: string) {
   try {
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
