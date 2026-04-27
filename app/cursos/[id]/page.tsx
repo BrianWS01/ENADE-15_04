@@ -13,7 +13,8 @@ import { CompetenceRadar } from "@/components/competence-radar";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { DownloadReportButton } from "@/components/reports/DownloadReportButton";
 import { CourseEvolutionChart } from "@/components/courses/CourseEvolutionChart";
-import { getCourseEvolution } from "@/services/course.service";
+import { getCourseEvolution, getCourseById } from "@/services/course.service";
+import { getRadarData } from "@/services/dashboard.service";
 
 
 interface Props {
