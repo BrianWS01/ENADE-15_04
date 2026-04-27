@@ -72,6 +72,14 @@ export async function getPrismaSimuladoById(id: string): Promise<Simulado | null
     include: {
       course: {
         select: { name: true }
+      },
+      results: {
+        include: {
+          student: true
+        },
+        orderBy: {
+          totalCorrect: 'asc' // Show lowest scores first for "At-Risk" focus
+        }
       }
     }
   });
@@ -88,6 +96,7 @@ export async function getPrismaSimuladoById(id: string): Promise<Simulado | null
     courseId: s.courseId,
     courseName: s.course.name,
     createdAt: s.createdAt.toISOString(),
+    results: s.results,
   };
 }
 

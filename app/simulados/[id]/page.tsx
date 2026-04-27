@@ -125,22 +125,23 @@ export default async function SimuladoDetailPage(props: Props) {
                 
                 {/* Lista mockada estática para visualização temporária */}
                 <ul className="space-y-3 mt-4">
-                  {[
-                    { name: "João Silva", score: "1.2" },
-                    { name: "Maria Oliveira", score: "1.5" },
-                    { name: "Carlos Souza", score: "1.8" },
-                    { name: "Ana Costa", score: "1.9" },
-                  ].map((student, idx) => (
+                  {(simulado.results || []).slice(0, 4).map((result, idx) => (
                     <li key={idx} className="flex justify-between items-center p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-                      <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{student.name}</span>
-                      <span className="font-black text-red-500 text-sm">{student.score}</span>
+                      <span className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{result.student.name}</span>
+                      <span className="font-black text-red-500 text-sm">{result.totalCorrect}</span>
                     </li>
                   ))}
+                  {(!simulado.results || simulado.results.length === 0) && (
+                    <p className="text-zinc-500 text-xs italic">Nenhum aluno em nível de risco detectado.</p>
+                  )}
                 </ul>
               </div>
-              <button className="w-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 py-2.5 rounded-lg text-sm font-bold transition-colors">
+              <Link 
+                href={`/simulados/${id}/alunos`}
+                className="w-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 py-2.5 rounded-lg text-sm font-bold transition-colors text-center"
+              >
                 Ver todos os alunos
-              </button>
+              </Link>
             </div>
           </div>
         </>

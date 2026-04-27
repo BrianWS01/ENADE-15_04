@@ -144,6 +144,7 @@ export interface Simulado {
   courseId: string;   // Relacionamento com o curso
   courseName: string; // Desnormalizado/Join para a listagem
   createdAt: string;
+  results?: any[];
 }
 
 export interface CreateSimuladoInput {

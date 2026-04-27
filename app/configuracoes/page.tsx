@@ -1,6 +1,8 @@
 "use client";
 
-import { Settings, User, Bell, Shield, Database } from "lucide-react";
+import { Settings, User, Bell, Shield, Database, Trash2, RefreshCcw } from "lucide-react";
+import { useState } from "react";
+import { resetAndImportCSVAction } from "@/app/actions/debug.actions";
 
 export default function SettingsPage() {
   return (
@@ -43,6 +45,17 @@ export default function SettingsPage() {
           </div>
           <button className="text-sm font-medium text-blue-600 hover:underline">Configurar</button>
         </div>
+
+        <div className="p-6 flex items-center justify-between hover:bg-zinc-50 transition-colors">
+          <div className="flex items-center gap-4">
+            <Trash2 className="text-red-500" />
+            <div>
+              <p className="font-medium text-zinc-900">Limpar e Reiniciar Dados</p>
+              <p className="text-xs text-muted-foreground text-red-500">Atenção: Isso apagará todos os dados atuais e reimportará do enade-import.csv.</p>
+            </div>
+          </div>
+          <ResetButton />
+        </div>
       </div>
 
       <div className="flex justify-end gap-3">
@@ -57,5 +70,40 @@ export default function SettingsPage() {
         </button>
       </div>
     </div>
+  );
+}
+function ResetButton() {
+  const [loading, setLoading] = useState(false);
+
+  const handleReset = async () => {
+    if (!confirm("Tem certeza que deseja apagar todos os dados e reiniciar pelo CSV? Esta ação não pode ser desfeita.")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await resetAndImportCSVAction();
+      if (res.success) {
+        alert("Sistema reiniciado com sucesso!");
+        window.location.reload();
+      } else {
+        alert("Erro: " + res.error);
+      }
+    } catch (error) {
+      alert("Falha crítica ao resetar dados.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleReset}
+      disabled={loading}
+      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-700 transition-all disabled:opacity-50"
+    >
+      {loading ? <RefreshCcw className="animate-spin w-4 h-4" /> : <Database className="w-4 h-4" />}
+      {loading ? "Processando..." : "Resetar e Reimportar"}
+    </button>
   );
 }

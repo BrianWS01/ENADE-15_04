@@ -66,7 +66,7 @@ export async function getCourseAnalytics(
 
   results.forEach(r => {
     let level: RiskLevel = 'Baixo';
-    if (r.totalCorrect < 8) {
+    if (r.totalCorrect < 8) { // Ajustado para corresponder a "abaixo de 2.0" (ex: 8 acertos de 20 ou 40%)
       level = 'Alto';
       risk.high++;
     } else if (r.totalCorrect < 12) {
