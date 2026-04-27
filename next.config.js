@@ -3,7 +3,7 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
-  serverExternalPackages: ['@prisma/client'],
+  serverExternalPackages: ['@prisma/client', 'pdfkit'],
 };
 
 module.exports = nextConfig;
