@@ -184,6 +184,26 @@ async function updateCourseAggregates(courseName: string) {
     const avgScore = course.results.reduce((acc, r) => acc + r.totalCorrect, 0) / totalResults;
     const participationRate = totalStudents > 0 ? (totalResults / totalStudents) * 100 : 0;
     
+    // Identifica o simulado mais recente ou relevante e atualiza sua média também
+    const simuladoIds = Array.from(new Set(course.results.map(r => r.simuladoId).filter(Boolean)));
+    for (const simId of simuladoIds) {
+      if (!simId) continue;
+      const simResults = course.results.filter(r => r.simuladoId === simId);
+      if (simResults.length > 0) {
+        const simAvg = simResults.reduce((acc, r) => acc + r.totalCorrect, 0) / simResults.length;
+        const simParticipantes = simResults.length;
+        const simParticipacao = totalStudents > 0 ? (simParticipantes / totalStudents) * 100 : 0;
+        
+        await prisma.simulado.update({
+          where: { id: simId },
+          data: {
+            avg: simAvg,
+            participation: simParticipacao
+          }
+        });
+      }
+    }
+
     await prisma.course.update({
       where: { id: course.id },
       data: {
