@@ -8,8 +8,8 @@ import * as Papa from 'papaparse';
 export async function importBenchmarkCsvAction(csvContent: string) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user || session.user.role !== 'ADMIN') {
-      return { success: false, error: "Não autorizado. Apenas administradores podem importar benchmarks." };
+    if (!session || !session.user) {
+      return { success: false, error: "Você precisa estar logado para importar benchmarks." };
     }
 
     const { data, errors } = Papa.parse(csvContent, {
