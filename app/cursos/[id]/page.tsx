@@ -140,24 +140,38 @@ export default async function CourseDetailPage(props: Props) {
              <h3 className="text-xl font-bold italic underline decoration-blue-500 decoration-2 underline-offset-4">Diagnóstico Smart</h3>
           </div>
           
-          {analytics?.comparison.benchmark?.hasData && (
+          {(analytics?.comparison.vsUf || analytics?.comparison.vsBrasil) && (
             <div className="grid grid-cols-2 gap-4 mt-2 mb-4 bg-zinc-800/50 p-4 rounded-xl border border-zinc-700/50">
-              <div>
-                <p className="text-xs text-zinc-400 font-bold mb-1 uppercase tracking-wider">Formação Geral</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Curso: <span className="font-bold text-white">{analytics.averages.fg}</span></span>
-                  <span className="text-sm text-zinc-400">vs UF: <span className={`font-bold ${analytics.comparison.benchmark.fgUfDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>{analytics.comparison.benchmark.fgUfDiff > 0 ? '+' : ''}{analytics.comparison.benchmark.fgUfDiff}</span></span>
+              {analytics.comparison.vsUf && (
+                <div>
+                  <p className="text-xs text-zinc-400 font-bold mb-1 uppercase tracking-wider">Formação Geral</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm">Simulado: <span className="font-bold text-white">{analytics.averages.fg}</span></span>
+                    <span className="text-sm text-zinc-400">vs UF: <span className={`font-bold ${analytics.comparison.vsUf.fg >= 0 ? 'text-green-400' : 'text-red-400'}`}>{analytics.comparison.vsUf.fg > 0 ? '+' : ''}{analytics.comparison.vsUf.fg}</span></span>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-xs text-zinc-400 font-bold mb-1 uppercase tracking-wider">Específico</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Curso: <span className="font-bold text-white">{analytics.averages.specific}</span></span>
-                  <span className="text-sm text-zinc-400">vs BR: <span className={`font-bold ${analytics.comparison.benchmark.ceBrasilDiff >= 0 ? 'text-green-400' : 'text-red-400'}`}>{analytics.comparison.benchmark.ceBrasilDiff > 0 ? '+' : ''}{analytics.comparison.benchmark.ceBrasilDiff}</span></span>
+              )}
+              {analytics.comparison.vsBrasil && (
+                <div>
+                  <p className="text-xs text-zinc-400 font-bold mb-1 uppercase tracking-wider">Específico</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm">Simulado: <span className="font-bold text-white">{analytics.averages.specific}</span></span>
+                    <span className="text-sm text-zinc-400">vs BR: <span className={`font-bold ${analytics.comparison.vsBrasil.ce >= 0 ? 'text-green-400' : 'text-red-400'}`}>{analytics.comparison.vsBrasil.ce > 0 ? '+' : ''}{analytics.comparison.vsBrasil.ce}</span></span>
+                  </div>
                 </div>
-              </div>
+              )}
+              {analytics.comparison.vsLastEnade?.hasData && (
+                <div className="col-span-2 border-t border-zinc-700/50 pt-3 mt-1">
+                  <p className="text-xs text-zinc-400 font-bold mb-2 uppercase tracking-wider">Evolução vs ENADE Anterior</p>
+                  <div className="flex gap-6">
+                    <span className="text-sm">FG: <span className={`font-bold ${(analytics.comparison.vsLastEnade.fg ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(analytics.comparison.vsLastEnade.fg ?? 0) > 0 ? '+' : ''}{analytics.comparison.vsLastEnade.fg?.toFixed(1)}</span></span>
+                    <span className="text-sm">CE: <span className={`font-bold ${(analytics.comparison.vsLastEnade.ce ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>{(analytics.comparison.vsLastEnade.ce ?? 0) > 0 ? '+' : ''}{analytics.comparison.vsLastEnade.ce?.toFixed(1)}</span></span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
 
           <div className="text-zinc-300 dark:text-zinc-700 leading-relaxed text-sm md:text-base space-y-2">
             {analytics?.insights.map((insight, idx) => (
