@@ -25,7 +25,7 @@ export async function importBenchmarkCsvAction(csvContent: string) {
 
     return { 
       success: true, 
-      message: `Importação concluída. Sucesso: ${result.success}. Erros: ${result.error}.` 
+      message: `Importação concluída. Benchmarks: ${result.success}. Novos cursos criados: ${result.coursesCreated}. Erros: ${result.error}.` 
     };
 
   } catch (error: any) {
