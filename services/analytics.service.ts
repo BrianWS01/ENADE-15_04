@@ -89,8 +89,7 @@ export async function getCourseAnalytics(
     }
   });
 
-  // 4. Comparações (Benchmarks Real)
-  // Assumindo ano 2023 ou 2024 para simplificar a MVP
+  // 4. Comparações com Benchmark Real
   const benchmark = await getBenchmark(course.name, 2023) || await getBenchmark(course.name, 2024);
 
   const nationalMock = NATIONAL_AVG_MOCK[course.name] || NATIONAL_AVG_MOCK['DEFAULT'];
@@ -102,18 +101,50 @@ export async function getCourseAnalytics(
     return { diff: Math.abs(Number(diff.toFixed(1))), status: status as any };
   };
 
-  let benchmarkComparison;
-  if (benchmark) {
-    benchmarkComparison = {
-      fgUfDiff: Number((avgFG - benchmark.avgFgUf).toFixed(2)),
-      fgBrasilDiff: Number((avgFG - benchmark.avgFgBrasil).toFixed(2)),
-      ceUfDiff: Number((avgSpecific - benchmark.avgCeUf).toFixed(2)),
-      ceBrasilDiff: Number((avgSpecific - benchmark.avgCeBrasil).toFixed(2)),
-      hasData: true
-    };
-  } else {
-    benchmarkComparison = { fgUfDiff: 0, fgBrasilDiff: 0, ceUfDiff: 0, ceBrasilDiff: 0, hasData: false };
-  }
+  // Bloco: Simulado atual vs UF e Brasil
+  const vsUf = benchmark ? {
+    fg: Number((avgFG - benchmark.avgFgUf).toFixed(2)),
+    ce: Number((avgSpecific - benchmark.avgCeUf).toFixed(2))
+  } : undefined;
+
+  const vsBrasil = benchmark ? {
+    fg: Number((avgFG - benchmark.avgFgBrasil).toFixed(2)),
+    ce: Number((avgSpecific - benchmark.avgCeBrasil).toFixed(2))
+  } : undefined;
+
+  // Bloco: Simulado atual vs ENADE anterior da instituição
+  const hasCourseData = benchmark?.avgFgCourse != null && benchmark?.avgCeCourse != null;
+  const vsLastEnade = benchmark ? {
+    fg: hasCourseData ? Number((avgFG - benchmark.avgFgCourse!).toFixed(2)) : null,
+    ce: hasCourseData ? Number((avgSpecific - benchmark.avgCeCourse!).toFixed(2)) : null,
+    hasData: hasCourseData
+  } : undefined;
+
+  // Bloco: Posição histórica — ENADE da IES vs UF/Brasil naquele ciclo
+  const historicalPosition = benchmark ? {
+    fg: hasCourseData ? {
+      course: benchmark.avgFgCourse!,
+      uf: benchmark.avgFgUf,
+      brasil: benchmark.avgFgBrasil
+    } : null,
+    ce: hasCourseData ? {
+      course: benchmark.avgCeCourse!,
+      uf: benchmark.avgCeUf,
+      brasil: benchmark.avgCeBrasil
+    } : null,
+    hasData: hasCourseData
+  } : undefined;
+
+  // Bloco: Dados brutos para referência direta no frontend
+  const baseline = benchmark ? {
+    avgFgCourse: benchmark.avgFgCourse,
+    avgCeCourse: benchmark.avgCeCourse,
+    avgFgUf: benchmark.avgFgUf,
+    avgFgBrasil: benchmark.avgFgBrasil,
+    avgCeUf: benchmark.avgCeUf,
+    avgCeBrasil: benchmark.avgCeBrasil,
+    year: benchmark.year
+  } : undefined;
 
   // 5. Retorno Estruturado
   return {
@@ -129,7 +160,11 @@ export async function getCourseAnalytics(
     comparison: {
       national: getComparison(avgTotal, nationalMock.total),
       regional: getComparison(avgTotal, regionalMock.total),
-      benchmark: benchmarkComparison
+      vsUf,
+      vsBrasil,
+      vsLastEnade,
+      historicalPosition,
+      baseline,
     },
     ranking: {
       top: results.slice(0, 5).map(r => ({ name: r.student.name, score: r.totalCorrect })),
@@ -140,51 +175,73 @@ export async function getCourseAnalytics(
       participated: totalResults,
       rate: totalStudents > 0 ? (totalResults / totalStudents) * 100 : 0,
     },
-    insights: generateInsights(avgTotal, avgSpecific, avgFG, nationalMock, risk, benchmarkComparison)
+    insights: generateInsights(avgTotal, avgSpecific, avgFG, nationalMock, risk, { vsUf, vsBrasil, vsLastEnade })
   };
 }
 
 function generateInsights(
-  avgTotal: number, 
-  avgSpecific: number, 
-  avgFG: number, 
-  nationalMock: any, 
+  avgTotal: number,
+  avgSpecific: number,
+  avgFG: number,
+  nationalMock: any,
   risk: any,
-  benchmark?: any
+  bk?: { vsUf?: any; vsBrasil?: any; vsLastEnade?: any }
 ): string[] {
   const insights: string[] = [];
 
-  if (benchmark && benchmark.hasData) {
-    if (benchmark.fgUfDiff < 0) {
-      insights.push(`🚨 O curso está abaixo da média estadual (UF) em Formação Geral (${Math.abs(benchmark.fgUfDiff).toFixed(1)} pts).`);
-    } else if (benchmark.fgUfDiff > 0) {
-      insights.push(`✅ Excelente! Formação Geral acima da média estadual (+${benchmark.fgUfDiff.toFixed(1)} pts).`);
+  // Insights de evolução vs ENADE anterior da instituição (mais prioritário)
+  if (bk?.vsLastEnade?.hasData) {
+    const fgEv = bk.vsLastEnade.fg as number;
+    const ceEv = bk.vsLastEnade.ce as number;
+    if (fgEv > 0) {
+      insights.push(`📈 Evolução positiva em Formação Geral: +${fgEv.toFixed(1)} pts em relação ao último ENADE oficial.`);
+    } else if (fgEv < 0) {
+      insights.push(`📉 Recessão em Formação Geral: ${fgEv.toFixed(1)} pts abaixo do último ENADE oficial.`);
     }
+    if (ceEv > 0) {
+      insights.push(`🏆 Evolução positiva em Conhecimento Específico: +${ceEv.toFixed(1)} pts vs último ENADE.`);
+    } else if (ceEv < 0) {
+      insights.push(`⚠️ Conhecimento Específico caiu ${Math.abs(ceEv).toFixed(1)} pts em relação ao último ENADE.`);
+    }
+  }
 
-    if (benchmark.ceBrasilDiff < 0) {
-      insights.push(`⚠️ Atenção nos Conhecimentos Específicos: o desempenho está inferior à média nacional (${Math.abs(benchmark.ceBrasilDiff).toFixed(1)} pts).`);
-    } else if (benchmark.ceBrasilDiff > 0) {
-      insights.push(`🏆 Destaque nacional em Conhecimentos Específicos (+${benchmark.ceBrasilDiff.toFixed(1)} pts vs Brasil).`);
+  // Insights vs UF
+  if (bk?.vsUf) {
+    if (bk.vsUf.fg < 0) {
+      insights.push(`🚨 Formação Geral abaixo da média estadual (${Math.abs(bk.vsUf.fg).toFixed(1)} pts).`);
+    } else if (bk.vsUf.fg > 0) {
+      insights.push(`✅ Formação Geral acima da média estadual (+${bk.vsUf.fg.toFixed(1)} pts).`);
     }
-  } else {
-    // Fallback original
+  }
+
+  // Insights vs Brasil
+  if (bk?.vsBrasil) {
+    if (bk.vsBrasil.ce < 0) {
+      insights.push(`⚠️ Conhecimentos Específicos abaixo da média nacional (${Math.abs(bk.vsBrasil.ce).toFixed(1)} pts).`);
+    } else if (bk.vsBrasil.ce > 0) {
+      insights.push(`🏅 Destaque nacional em Específicos (+${bk.vsBrasil.ce.toFixed(1)} pts vs Brasil).`);
+    }
+  }
+
+  // Fallback quando não há benchmark real cadastrado
+  if (!bk?.vsUf && !bk?.vsBrasil) {
     if (avgTotal < nationalMock.total) {
-      insights.push("⚠️ O curso está com média geral abaixo da média nacional de referência.");
+      insights.push("⚠️ Média geral abaixo da referência nacional.");
     }
     if (avgFG < nationalMock.fg) {
-      insights.push("📘 Atenção: O desempenho em Formação Geral está inferior ao esperado nacionalmente.");
+      insights.push("📘 Formação Geral abaixo do esperado.");
     }
     if (avgTotal > nationalMock.total * 1.1) {
-      insights.push("✅ Parabéns! O curso está performando 10% acima da média nacional.");
+      insights.push("✅ Desempenho 10% acima da média nacional.");
     }
   }
 
   if (risk.highRate > 15) {
-    insights.push("🚨 Alerta: Alta concentração de alunos em nível de Alto Risco (acima de 15%).");
+    insights.push("🚨 Alta concentração de alunos em Risco Alto (acima de 15%).");
   }
 
   if (insights.length === 0) {
-    insights.push("ℹ️ O curso mantém um desempenho estável dentro das médias esperadas.");
+    insights.push("ℹ️ Desempenho estável dentro das médias esperadas.");
   }
 
   return insights;

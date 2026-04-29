@@ -252,13 +252,31 @@ export interface CourseAnalytics {
   comparison: {
     national: { diff: number; status: 'above' | 'below' | 'equal' };
     regional: { diff: number; status: 'above' | 'below' | 'equal' };
-    benchmark?: {
-      fgUfDiff: number;
-      fgBrasilDiff: number;
-      ceUfDiff: number;
-      ceBrasilDiff: number;
+    // Simulado atual vs UF e Brasil (benchmark externo)
+    vsUf?: { fg: number; ce: number };
+    vsBrasil?: { fg: number; ce: number };
+    // Simulado atual vs ENADE anterior da instituição
+    vsLastEnade?: {
+      fg: number | null;
+      ce: number | null;
       hasData: boolean;
-    }
+    };
+    // Posição histórica: ENADE da IES vs UF/Brasil naquele ciclo
+    historicalPosition?: {
+      fg: { course: number; uf: number; brasil: number } | null;
+      ce: { course: number; uf: number; brasil: number } | null;
+      hasData: boolean;
+    };
+    // Dados brutos do benchmark para referência
+    baseline?: {
+      avgFgCourse: number | null;
+      avgCeCourse: number | null;
+      avgFgUf: number;
+      avgFgBrasil: number;
+      avgCeUf: number;
+      avgCeBrasil: number;
+      year: number;
+    };
   };
   ranking: {
     top: { name: string; score: number }[];
@@ -287,6 +305,8 @@ export interface Benchmark {
   id: string;
   courseName: string;
   year: number;
+  avgFgCourse: number | null; // Média FG da instituição no ENADE oficial
+  avgCeCourse: number | null; // Média CE da instituição no ENADE oficial
   avgFgUf: number;
   avgFgBrasil: number;
   avgCeUf: number;
@@ -297,6 +317,8 @@ export interface Benchmark {
 export interface ImportBenchmarkRow {
   courseName: string;
   year: number;
+  avgFgCourse?: number | null; // Opcional — null se não informado
+  avgCeCourse?: number | null; // Opcional — null se não informado
   avgFgUf: number;
   avgFgBrasil: number;
   avgCeUf: number;

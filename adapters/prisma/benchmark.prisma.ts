@@ -1,6 +1,3 @@
-import { prisma } from '@/lib/prisma';
-import type { ImportBenchmarkRow, Benchmark } from '@/types';
-
 export async function getPrismaBenchmark(courseName: string, year: number): Promise<Benchmark | null> {
   const benchmark = await prisma.benchmark.findUnique({
     where: {
@@ -15,6 +12,8 @@ export async function getPrismaBenchmark(courseName: string, year: number): Prom
 
   return {
     ...benchmark,
+    avgFgCourse: benchmark.avgFgCourse ?? null,
+    avgCeCourse: benchmark.avgCeCourse ?? null,
     createdAt: benchmark.createdAt.toISOString()
   };
 }
@@ -28,6 +27,8 @@ export async function upsertPrismaBenchmark(data: ImportBenchmarkRow): Promise<B
       }
     },
     update: {
+      avgFgCourse: data.avgFgCourse ?? null,
+      avgCeCourse: data.avgCeCourse ?? null,
       avgFgUf: data.avgFgUf,
       avgFgBrasil: data.avgFgBrasil,
       avgCeUf: data.avgCeUf,
@@ -36,6 +37,8 @@ export async function upsertPrismaBenchmark(data: ImportBenchmarkRow): Promise<B
     create: {
       courseName: data.courseName,
       year: data.year,
+      avgFgCourse: data.avgFgCourse ?? null,
+      avgCeCourse: data.avgCeCourse ?? null,
       avgFgUf: data.avgFgUf,
       avgFgBrasil: data.avgFgBrasil,
       avgCeUf: data.avgCeUf,
@@ -45,6 +48,8 @@ export async function upsertPrismaBenchmark(data: ImportBenchmarkRow): Promise<B
 
   return {
     ...benchmark,
+    avgFgCourse: benchmark.avgFgCourse ?? null,
+    avgCeCourse: benchmark.avgCeCourse ?? null,
     createdAt: benchmark.createdAt.toISOString()
   };
 }

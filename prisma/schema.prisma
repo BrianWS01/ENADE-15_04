@@ -138,6 +138,8 @@ model Benchmark {
   id            String   @id @default(cuid())
   courseName    String   // Normalizado
   year          Int
+  avgFgCourse   Float?   // Média FG da instituição no ENADE oficial (null = não informado)
+  avgCeCourse   Float?   // Média CE da instituição no ENADE oficial (null = não informado)
   avgFgUf       Float
   avgFgBrasil   Float
   avgCeUf       Float

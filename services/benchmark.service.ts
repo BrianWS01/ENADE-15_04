@@ -19,6 +19,14 @@ export async function getBenchmark(courseName: string, year: number): Promise<Be
 export async function processBenchmarkImport(rows: any[]): Promise<{ success: number, error: number }> {
   const { upsertPrismaBenchmark } = await import('@/adapters/prisma/benchmark.prisma');
   
+  // Converte campo para float ou null (nunca para 0)
+  // Usado para campos opcionais como avgFgCourse e avgCeCourse
+  const parseNullable = (val: any): number | null => {
+    if (val === undefined || val === null || val === '') return null;
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? null : parsed;
+  };
+
   let success = 0;
   let error = 0;
 
@@ -30,6 +38,10 @@ export async function processBenchmarkImport(rows: any[]): Promise<{ success: nu
       const data: ImportBenchmarkRow = {
         courseName: normalizedName,
         year: parseInt(row.year, 10),
+        // Campos opcionais da instituição — null se ausentes no CSV
+        avgFgCourse: parseNullable(row.avgFgCourse),
+        avgCeCourse: parseNullable(row.avgCeCourse),
+        // Campos externos obrigatórios — fallback para 0 se ausentes
         avgFgUf: parseFloat(row.avgFgUf) || 0,
         avgFgBrasil: parseFloat(row.avgFgBrasil) || 0,
         avgCeUf: parseFloat(row.avgCeUf) || 0,
