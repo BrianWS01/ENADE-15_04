@@ -293,7 +293,9 @@ export interface CourseAnalytics {
 export interface GlobalAnalytics {
   totalStudents: number;
   totalCourses: number;
+  totalResults: number;
   globalAvg: number;
+  participationRate: number;
   riskDistribution: { name: string; value: number }[]; // Para gráficos de pizza
   performanceByArea: { area: string; avg: number }[];
 }

@@ -22,10 +22,9 @@ export async function getHistoricalChartData(): Promise<ChartDataPoint[]> {
     const { getMockHistoricalChart } = await import('@/adapters/mock/dashboard.mock');
     return getMockHistoricalChart();
   }
-  // TODO (Etapa 3): buscar evolução histórica real via Assessment no Prisma
-  // Por ora, retorna mock mesmo em modo real até a tabela Assessment ser populada
-  const { getMockHistoricalChart } = await import('@/adapters/mock/dashboard.mock');
-  return getMockHistoricalChart();
+  
+  const { getPrismaHistoricalChart } = await import('@/adapters/prisma/dashboard.prisma');
+  return getPrismaHistoricalChart();
 }
 
 export async function getRadarData(courseId?: string): Promise<RadarDataPoint[]> {

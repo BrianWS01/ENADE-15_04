@@ -106,3 +106,39 @@ export async function getPrismaRadarData(courseId: string): Promise<import('@/ty
     { subject: 'Evolução', value: 70, fullMark: 100 },
   ];
 }
+
+export async function getPrismaHistoricalChart(): Promise<import('@/types').ChartDataPoint[]> {
+  const benchmarks = await prisma.benchmark.findMany({
+    where: {
+      OR: [
+        { avgFgCourse: { not: null } },
+        { avgCeCourse: { not: null } }
+      ]
+    },
+    select: {
+      year: true,
+      avgFgCourse: true,
+      avgCeCourse: true
+    }
+  });
+
+  if (benchmarks.length === 0) return [];
+
+  const yearsMap = new Map<number, { sum: number; count: number }>();
+
+  benchmarks.forEach(b => {
+    // Nota total institucional = FG + CE (se existirem)
+    const score = (b.avgFgCourse ?? 0) + (b.avgCeCourse ?? 0);
+    if (score > 0) {
+      const prev = yearsMap.get(b.year) ?? { sum: 0, count: 0 };
+      yearsMap.set(b.year, { sum: prev.sum + score, count: prev.count + 1 });
+    }
+  });
+
+  return Array.from(yearsMap.entries())
+    .map(([year, data]) => ({
+      year: year.toString(),
+      score: Number((data.sum / data.count).toFixed(2))
+    }))
+    .sort((a, b) => parseInt(a.year) - parseInt(b.year));
+}

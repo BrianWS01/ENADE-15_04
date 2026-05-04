@@ -299,7 +299,9 @@ export async function getGlobalAnalytics(
   return {
     totalStudents,
     totalCourses,
+    totalResults: totalResultsCount,
     globalAvg: totalResultsCount > 0 ? Number((totalScore / totalResultsCount).toFixed(2)) : 0,
+    participationRate: totalStudents > 0 ? Number(((totalResultsCount / totalStudents) * 100).toFixed(1)) : 0,
     riskDistribution: [
       { name: 'Alto Risco', value: riskCounts.high },
       { name: 'Médio Risco', value: riskCounts.medium },

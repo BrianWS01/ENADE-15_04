@@ -33,6 +33,20 @@ export default async function SimuladosPage(props: { searchParams: SearchParams 
     getHistoricalChartData() // Reusing for the projection chart
   ]);
 
+  // Cálculos dinâmicos para a lateral
+  const avgParticipation = response.data.length > 0 
+    ? response.data.reduce((acc, s) => acc + (s.participation || 0), 0) / response.data.length
+    : 0;
+
+  const avgScore = response.data.length > 0
+    ? response.data.reduce((acc, s) => acc + (s.avg || 0), 0) / response.data.length
+    : 0;
+  
+  // Cálculo simplificado de probabilidade: média 4.0+ -> 80%+, média 2.0 -> 30%
+  const probability = avgScore > 0 
+    ? Math.min(95, Math.max(5, Math.round((avgScore / 5) * 100))) 
+    : 0;
+
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -81,19 +95,27 @@ export default async function SimuladosPage(props: { searchParams: SearchParams 
                <div>
                   <div className="flex justify-between text-xs font-bold uppercase text-zinc-500 mb-1.5 tracking-wider">
                      <span>Probabilidade de Nota 4 ou 5</span>
-                     <span className="text-green-600 dark:text-green-400">65%</span>
+                     <span className={probability > 60 ? "text-green-600 dark:text-green-400" : "text-yellow-600"}>
+                        {probability}%
+                     </span>
                   </div>
                   <div className="w-full h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                     <div className="h-full bg-green-500 w-[65%] rounded-full" />
+                     <div 
+                        className={`h-full ${probability > 60 ? 'bg-green-500' : 'bg-yellow-500'} transition-all duration-1000`} 
+                        style={{ width: `${probability}%` }} 
+                     />
                   </div>
                </div>
                 <div>
                   <div className="flex justify-between text-xs font-bold uppercase text-zinc-500 mb-1.5 tracking-wider">
                      <span>Engajamento do Aluno</span>
-                     <span className="text-blue-600 dark:text-blue-400">92%</span>
+                     <span className="text-blue-600 dark:text-blue-400">{avgParticipation.toFixed(1)}%</span>
                   </div>
                   <div className="w-full h-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                     <div className="h-full bg-blue-500 w-[92%] rounded-full" />
+                     <div 
+                        className="h-full bg-blue-500 transition-all duration-1000" 
+                        style={{ width: `${avgParticipation}%` }} 
+                     />
                   </div>
                 </div>
             </div>

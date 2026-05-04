@@ -99,10 +99,10 @@ export default async function DashboardPage(props: { searchParams: SearchParams 
             />
             <StatCard
               label="Participação Média"
-              value="87.5%"
-              trend="-2.1%"
-              trendLabel="meta: 90%"
-              isPositive={false}
+              value={`${globalData.participationRate}%`}
+              trend={null}
+              trendLabel="dos alunos matriculados"
+              isPositive={globalData.participationRate >= 80}
             />
           </div>
 
